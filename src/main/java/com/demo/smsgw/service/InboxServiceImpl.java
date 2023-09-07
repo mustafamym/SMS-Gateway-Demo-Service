@@ -5,6 +5,7 @@ import com.demo.smsgw.model.*;
 import com.demo.smsgw.repository.ChargeConfRepository;
 import com.demo.smsgw.repository.InboxRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class InboxServiceImpl implements InboxService {
 
     private final InboxRepository inboxRepository;
@@ -39,14 +41,18 @@ public class InboxServiceImpl implements InboxService {
             }
 
             inboxMsg.getContent().forEach(inbox -> {
-                Optional<KeywordDetails> keywordDetails = keywordMatching(listOfKeywordDetails, inbox);
+                Optional<KeywordDetails> keywordDetails = getKeywordMatching(listOfKeywordDetails, inbox);
                 keywordDetails.ifPresent(keyword -> {
                     String getUnlockCode = getUnlockCode(inbox, keyword);
                     Optional<ChargeConf> chargeConf = getChargeConf(chargeConfs, getUnlockCode);
                     chargeConf.ifPresent(chargeConfig -> {
+                        log.info("*************Get Unlock Code*****************");
                         String chargingApiResponse = chargingRequest(chargeConfig, inbox);
+                        log.info("*************Send Charging Request *****************");
                         String msgChargeStatus = savedSuccessFailLog(chargingApiResponse, inbox, keyword, chargeConfig);
+                        log.info("*************return success/failed status  *****************");
                         inbox.setStatus(msgChargeStatus);
+                        log.info("*************Update  inbox Status ={}*****************",msgChargeStatus);
                         inboxRepository.save(inbox);
 
                     });
@@ -57,7 +63,7 @@ public class InboxServiceImpl implements InboxService {
         return true;
     }
 
-    private Optional<KeywordDetails> keywordMatching(List<KeywordDetails> listOfKeywordDetails, Inbox inbox) {
+    private Optional<KeywordDetails> getKeywordMatching(List<KeywordDetails> listOfKeywordDetails, Inbox inbox) {
         return listOfKeywordDetails.stream()
                 .filter(keyword -> inbox.getSmsText().contains(keyword.getKeyword()))
                 .findFirst();
