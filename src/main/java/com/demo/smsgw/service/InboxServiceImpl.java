@@ -106,11 +106,11 @@ public class InboxServiceImpl implements InboxService {
         String status;
 
         String[] splitResponse = chargingApiResponse.split("::");
-        String successFailCode = splitResponse[0];
+        String successFailCode = splitResponse[0]; //not saving to db due to exceed maximum int value
         String successFailCode1 = splitResponse[1];
         String successFailMessage = splitResponse[2];
 
-        if (successFailMessage.contains("success")) {
+        if (successFailMessage.contains("Successful")) {
             ChargeSuccessLog chargeSuccessLog = ChargeSuccessLog.builder()
                     .msisdn(inbox.getMsisdn())
                     .chargeId(chargeConf)

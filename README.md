@@ -59,7 +59,10 @@ Step 4 : this process will continue until app_conf table status = 0 .
 
 challenge  1: after restore dump table app_conf column last_reload_time invalid date  value found 
 
-challenge  2: charge_fail_log foreign key wrong mapped (keywordId point to ChargeConf) . i skip this issue and go ahead 
+challenge  2: charge_fail_log foreign key wrong mapped (keywordId point to ChargeConf) . i skip this issue and go ahead
+
+
+
 
 
 
